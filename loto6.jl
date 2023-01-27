@@ -79,10 +79,10 @@ function getmodel()
     
     
     
-function inference(loss_f::Function, model,loader,(xs,ys))
+function inference(loss_f::Function, model,loader,(xs,ys) ; n= 50)
     optim = Flux.setup(Flux.Adam(0.01), model)
     losses=[]
-    @showprogress for epoch in 1:50
+    @showprogress for epoch in 1:n
         for (x,y) in loader
             #        @show size(y) size(x)
             loss, grads = Flux.withgradient(model) do m
@@ -124,6 +124,6 @@ xs,ys = getxydata(datamx)
 loader = Flux.DataLoader((xs,ys),batchsize=64, shuffle=true)
 model=getmodel()
 loss_func(x,y) = ( x .- y ) .^2 |> mean 
-losses, model_update = inference(loss_func, model, loader, (xs,ys))
+losses, model_update = inference(loss_func, model, loader, (xs,ys); n=500)
 wgt = lotopredict(model_update,datamx) |> ProbabilityWeights
 printout(wgt)
